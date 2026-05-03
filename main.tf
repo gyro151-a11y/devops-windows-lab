@@ -75,13 +75,10 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
-settings = <<SETTINGS
-{
-  "commandToExecute": "powershell -Command \"${replace(replace(file("scripts/install-iis.ps1"), "\"", "\\\""), "\n", ";")}\""
+  protected_settings = jsonencode({
+    commandToExecute = "powershell -ExecutionPolicy Bypass -Command \"${file("scripts/install-iis.ps1")}\""
+  })
 }
-SETTINGS
-}
-
 
 resource "azurerm_network_security_group" "nsg" {
   name                = "nsg-devops"

@@ -1,3 +1,12 @@
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-terraform-state"
+    storage_account_name = "tfstate44914"
+    container_name       = "tfstate"
+    key                  = "devops-lab.tfstate"
+  }
+}
+
 provider "azurerm" {
   features {}
 } # Configures the provider

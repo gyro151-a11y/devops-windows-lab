@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
 
   settings = jsonencode({
     fileUris = [
-      "https://github.com/gyro151-a11y/devops-windows-lab/raw/refs/heads/main/scripts/install-iis.ps1"
+      "https://raw.githubusercontent.com/gyro151-a11y/devops-windows-lab/refs/heads/main/scripts/install-iis.ps1"
     ]
 
     commandToExecute = "powershell -ExecutionPolicy Bypass -File install-iis.ps1"

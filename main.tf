@@ -1,32 +1,32 @@
 provider "azurerm" {
   features {}
-}
+} # Configures the provider
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-devops-lab"
   location = "North Central US"
-}
+} # Creates the resource group
 
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-devops"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-}
+} # Creates the virtual network
 
 resource "azurerm_subnet" "subnet" {
   name                 = "subnet-devops"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
-}
+} # Creates the subnet in the virtual network
 
 resource "azurerm_public_ip" "public_ip" {
   name                = "pip-devops"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
-}
+} # Creates the virtual public IP in the subnet
 
 resource "azurerm_network_interface" "nic" {
   name                = "nic-devops"
@@ -39,7 +39,7 @@ resource "azurerm_network_interface" "nic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.public_ip.id
   }
-}
+} # Creates the nic with the public IP to attach to a VM
 
 resource "azurerm_windows_virtual_machine" "vm" {
   name                = "vm-devops"
@@ -65,7 +65,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     sku       = "2019-Datacenter"
     version   = "latest"
   }
-}
+} # Creates the vm with the proper parameters
 
 
 resource "azurerm_virtual_machine_extension" "iis_install" {
@@ -86,7 +86,7 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   tags = {
     force_update = timestamp()
   }
-}
+} # Installs the iis extension and runs the script to install iis and create a custom webpage
 
 resource "azurerm_network_security_group" "nsg" {
   name                = "nsg-devops"
@@ -116,9 +116,9 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-}
+} # Creates the firewall rules to allow rdp and http to the vm
 
 resource "azurerm_network_interface_security_group_association" "nsg_assoc" {
   network_interface_id      = azurerm_network_interface.nic.id
   network_security_group_id = azurerm_network_security_group.nsg.id
-}
+} # Associates the firewall to the vm NIC

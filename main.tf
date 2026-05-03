@@ -8,8 +8,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
-} # Configures the provider
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-devops-lab"
@@ -86,7 +90,7 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
 
   settings = jsonencode({
     fileUris = [
-      "https://raw.githubusercontent.com/gyro151-a11y/devops-windows-lab/refs/heads/main/scripts/install-iis.ps1"
+      "https://raw.githubusercontent.com/gyro151-a11y/devops-windows-lab/main/scripts/install-iis.ps1"
     ]
 
     commandToExecute = "powershell -ExecutionPolicy Bypass -File install-iis.ps1"

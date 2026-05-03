@@ -75,9 +75,9 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
-  settings = <<SETTINGS
+settings = <<SETTINGS
 {
-  "commandToExecute": "powershell -Command \"${replace(file("scripts/install-iis.ps1"), "\n", ";")}\""
+  "commandToExecute": "powershell -Command \"${replace(replace(file("scripts/install-iis.ps1"), "\"", "\\\""), "\n", ";")}\""
 }
 SETTINGS
 }

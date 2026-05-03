@@ -97,7 +97,7 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   })
 
   tags = {
-    force_update = timestamp()
+    force_update = filemd5("scripts/install-iis.ps1")
   }
 } # Installs the iis extension and runs the script to install iis and create a custom webpage
 

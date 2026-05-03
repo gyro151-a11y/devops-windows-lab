@@ -75,8 +75,12 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
-  protected_settings = jsonencode({
-    commandToExecute = "powershell -ExecutionPolicy Bypass -Command \"Set-Content -Path C:\\install-iis.ps1 -Value '${replace(file("scripts/install-iis.ps1"), "'", "''")}' ; powershell -ExecutionPolicy Bypass -File C:\\install-iis.ps1\""
+  settings = jsonencode({
+    fileUris = [
+      "https://github.com/gyro151-a11y/devops-windows-lab/raw/refs/heads/main/scripts/install-iis.ps1"
+    ]
+
+    commandToExecute = "powershell -ExecutionPolicy Bypass -File install-iis.ps1"
   })
 
   tags = {

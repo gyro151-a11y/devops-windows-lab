@@ -67,6 +67,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 }
 
+
 resource "azurerm_virtual_machine_extension" "iis_install" {
   name                 = "install-iis"
   virtual_machine_id   = azurerm_windows_virtual_machine.vm.id
@@ -75,11 +76,12 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   type_handler_version = "1.10"
 
   settings = <<SETTINGS
-    {
-      "commandToExecute": "powershell -Command \"Install-WindowsFeature -Name Web-Server -IncludeManagementTools\""
-    }
+{
+  "commandToExecute": "powershell -Command \"${replace(file("scripts/install-iis.ps1"), "\n", ";")}\""
+}
 SETTINGS
 }
+
 
 resource "azurerm_network_security_group" "nsg" {
   name                = "nsg-devops"

@@ -1,7 +1,7 @@
 Install-WindowsFeature -Name Web-Server -IncludeManagementTools
 
-# Create a simple webpage
-$html = '<h1>Hurray! This is the second run in a row with no issues!!</h1>'
-$html | Out-File -FilePath "C:\inetpub\wwwroot\index.html" -Encoding utf8
+$html = '<h1>Pipeline Test - Version X</h1>'
+
+Set-Content -Path "C:\inetpub\wwwroot\index.html" -Value $html -Force
 
 iisreset

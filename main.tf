@@ -88,13 +88,13 @@ resource "azurerm_virtual_machine_extension" "iis_install" {
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
-  settings = jsonencode({
-    fileUris = [
-      "https://raw.githubusercontent.com/gyro151-a11y/devops-windows-lab/main/scripts/install-iis.ps1"
-    ]
+settings = jsonencode({
+  fileUris = [
+    "https://raw.githubusercontent.com/gyro151-a11y/devops-windows-lab/main/scripts/install-iis.ps1?${filemd5("scripts/install-iis.ps1")}"
+  ]
 
-    commandToExecute = "powershell -ExecutionPolicy Bypass -File install-iis.ps1"
-  })
+  commandToExecute = "powershell -ExecutionPolicy Bypass -File install-iis.ps1"
+})
 
   tags = {
     force_update = filemd5("scripts/install-iis.ps1")

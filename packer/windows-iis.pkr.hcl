@@ -42,4 +42,11 @@ build {
   provisioner "powershell" {
     script = "../scripts/install-iis.ps1"
   }
+
+  provisioner "powershell" {
+  inline = [
+    "Write-Output 'Running Sysprep...'",
+    "Start-Process -FilePath C:\\Windows\\System32\\Sysprep\\Sysprep.exe -ArgumentList '/oobe /generalize /shutdown /quiet' -Wait"
+  ]
+}
 }

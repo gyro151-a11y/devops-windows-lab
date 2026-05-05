@@ -17,7 +17,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-devops-lab"
-  location = "North Central US"
+  location = "West US 2"
 } # Creates the resource group
 
 resource "azurerm_virtual_network" "vnet" {
@@ -58,7 +58,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   name                = "vm-devops"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_B2ats_v2"
+  size                = "Standard_D2s_v3"
 
   admin_username = "azureuser"
   admin_password = "P@ssword1234!"  # temp only (we’ll fix later)
@@ -72,13 +72,8 @@ resource "azurerm_windows_virtual_machine" "vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
-    version   = "latest"
-  }
-} # Creates the vm with the proper parameters
+  source_image_id = "/subscriptions/03ffa2fa-c039-4d94-a416-1ae39496cb4e/resourceGroups/rg-devops-images/providers/Microsoft.Compute/images/windows-iis-image"
+  } # Creates the vm with the proper parameters
 
 
 resource "azurerm_virtual_machine_extension" "iis_install" {

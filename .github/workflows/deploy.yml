@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-   path:
+    paths:
       - 'terraform/**'
   workflow_dispatch:
 
@@ -66,12 +66,14 @@ jobs:
     # Terraform Init
     # -----------------------
     - name: Terraform Init
+      working-directory: ./terraform
       run: terraform init
 
     # -----------------------
     # Terraform Apply
     # -----------------------
     - name: Terraform Apply
+      working-directory: ./terraform
       run: |
         terraform apply -auto-approve \
           -var="image_id=$IMAGE_ID"

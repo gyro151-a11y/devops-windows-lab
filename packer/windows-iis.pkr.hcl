@@ -42,6 +42,7 @@ source "azure-arm" "windows" {
   image_publisher = "MicrosoftWindowsServer"
   image_offer     = "WindowsServer"
   image_sku       = "2019-Datacenter"
+  public_ip_sku   = "Standard"
 
   communicator    = "winrm"
   winrm_use_ssl   = true

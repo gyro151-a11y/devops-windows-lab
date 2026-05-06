@@ -1,23 +1,77 @@
-name: Deploy Terraform to Azure
+name: Build Image and Deploy
 
 on:
   push:
     branches:
       - main
+   path:
+      - 'terraform/**'
+  workflow_dispatch:
 
 jobs:
-  terraform:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+    # -----------------------
+    # Checkout repo
+    # -----------------------
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v2
+    # -----------------------
+    # Login to Azure
+    # -----------------------
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # -----------------------
+    # Install Packer
+    # -----------------------
+    - name: Setup Packer
+      uses: hashicorp/setup-packer@v2
 
-      - run: terraform init
+    # -----------------------
+    # Packer Init
+    # -----------------------
+    - name: Packer Init
+      run: packer init ./packer
 
-      - run: terraform apply -auto-approve
+    # -----------------------
+    # Build Image
+    # -----------------------
+    - name: Build Image
+      id: packer
+      run: |
+        packer build ./packer/windows-iis.pkr.hcl
+
+    # -----------------------
+    # Extract Image ID
+    # -----------------------
+    - name: Extract Image ID
+      id: extract
+      run: |
+        IMAGE_ID=$(jq -r '.builds[0].artifact_id' packer/packer-manifest.json)
+        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+
+    # -----------------------
+    # Install Terraform
+    # -----------------------
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # -----------------------
+    # Terraform Init
+    # -----------------------
+    - name: Terraform Init
+      run: terraform init
+
+    # -----------------------
+    # Terraform Apply
+    # -----------------------
+    - name: Terraform Apply
+      run: |
+        terraform apply -auto-approve \
+          -var="image_id=$IMAGE_ID"

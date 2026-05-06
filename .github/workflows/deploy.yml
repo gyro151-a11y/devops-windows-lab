@@ -52,12 +52,13 @@ jobs:
     # Build Image
     # -----------------------
     - name: Build Image
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       run: |
-        export ARM_CLIENT_ID='${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}'
-        export ARM_CLIENT_SECRET='${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}'
-        export ARM_SUBSCRIPTION_ID='${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}'
-        export ARM_TENANT_ID='${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}'
-         |
+        env | grep ARM_
         packer build ./packer/windows-iis.pkr.hcl
         
     # -----------------------

@@ -8,6 +8,7 @@ on:
       - 'terraform/**'
       - 'packer/**'
       - 'scripts/**'
+
   workflow_dispatch:
 
 jobs:
@@ -15,14 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     # -----------------------
-    # Checkout repo
+    # Checkout Repository
     # -----------------------
     - name: Checkout
       uses: actions/checkout@v4
 
     # -----------------------
-    # Login to Azure
+    # Azure Login
     # -----------------------
     - name: Azure Login
       uses: azure/login@v2
@@ -30,7 +32,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     # -----------------------
-    # Install Packer
+    # Setup Packer
     # -----------------------
     - name: Setup Packer
       uses: hashicorp/setup-packer@v2
@@ -45,8 +47,35 @@ jobs:
     # Debug ARM Variables
     # -----------------------
     - name: Debug ARM Variables
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       run: |
-        env | grep ARM_
+        if [ -z "$ARM_CLIENT_ID" ]; then
+          echo "ARM_CLIENT_ID missing"
+        else
+          echo "ARM_CLIENT_ID exists"
+        fi
+
+        if [ -z "$ARM_CLIENT_SECRET" ]; then
+          echo "ARM_CLIENT_SECRET missing"
+        else
+          echo "ARM_CLIENT_SECRET exists"
+        fi
+
+        if [ -z "$ARM_SUBSCRIPTION_ID" ]; then
+          echo "ARM_SUBSCRIPTION_ID missing"
+        else
+          echo "ARM_SUBSCRIPTION_ID exists"
+        fi
+
+        if [ -z "$ARM_TENANT_ID" ]; then
+          echo "ARM_TENANT_ID missing"
+        else
+          echo "ARM_TENANT_ID exists"
+        fi
 
     # -----------------------
     # Build Image
@@ -58,11 +87,10 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       run: |
-        env | grep ARM_
         packer build ./packer/windows-iis.pkr.hcl
-        
+
     # -----------------------
-    # Ensure jq exists
+    # Install jq
     # -----------------------
     - name: Install jq
       run: sudo apt-get update && sudo apt-get install -y jq
@@ -71,13 +99,12 @@ jobs:
     # Extract Image ID
     # -----------------------
     - name: Extract Image ID
-      id: extract
       run: |
         IMAGE_ID=$(jq -r '.builds[0].artifact_id' packer/packer-manifest.json)
         echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
 
     # -----------------------
-    # Install Terraform
+    # Setup Terraform
     # -----------------------
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3

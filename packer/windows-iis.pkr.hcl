@@ -35,7 +35,7 @@ build {
   sources = ["source.azure-arm.windows"]
 
   provisioner "powershell" {
-    script = "../scripts/install-iis.ps1"
+    script = "scripts/install-iis.ps1"
   }
 
   provisioner "powershell" {

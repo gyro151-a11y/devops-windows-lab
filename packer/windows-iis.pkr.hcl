@@ -38,11 +38,14 @@ source "azure-arm" "windows" {
   location = "westus2"
   vm_size  = "Standard_D2s_v3"
 
+  virtual_network_name                = "vnet-devops"
+  virtual_network_subnet_name         = "subnet-devops"
+  virtual_network_resource_group_name = "rg-devops-lab"
+
   os_type         = "Windows"
   image_publisher = "MicrosoftWindowsServer"
   image_offer     = "WindowsServer"
   image_sku       = "2019-Datacenter"
-  public_ip_sku   = "Standard"
 
   communicator    = "winrm"
   winrm_use_ssl   = true

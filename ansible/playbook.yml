@@ -1,0 +1,14 @@
+- name: Configure IIS Server
+  hosts: windows
+
+  tasks:
+
+    - name: Copy website file
+      win_copy:
+        src: files/index.html
+        dest: C:\inetpub\wwwroot\index.html
+
+    - name: Restart IIS
+      win_service:
+        name: W3SVC
+        state: restarted

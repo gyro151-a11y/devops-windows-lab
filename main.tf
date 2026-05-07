@@ -101,6 +101,17 @@ resource "azurerm_network_security_group" "nsg" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
+security_rule {
+  name                       = "Allow-WinRM"
+  priority                   = 1011
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "5986"
+  source_address_prefix      = "50.80.94.18/32"
+  destination_address_prefix = "*"
+}
   security_rule {
     name                       = "Allow-RDP"
     priority                   = 1000
@@ -109,7 +120,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "3389"
-    source_address_prefix      = "*"
+    source_address_prefix      = "50.80.94.18/32"
     destination_address_prefix = "*"
   }
 
@@ -121,7 +132,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = "*"
+    source_address_prefix      = "50.80.94.18/32"
     destination_address_prefix = "*"
   }
 } # Creates the firewall rules to allow rdp and http to the vm

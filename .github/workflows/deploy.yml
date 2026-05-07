@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'terraform/**'
-      - 'packer/**'
-      - 'scripts/**'
 
   workflow_dispatch:
 
@@ -18,7 +14,7 @@ jobs:
     steps:
 
     # -----------------------
-    # Checkout Repository
+    # Checkout
     # -----------------------
     - name: Checkout
       uses: actions/checkout@v4
@@ -44,56 +40,16 @@ jobs:
       run: packer init ./packer
 
     # -----------------------
-    # Debug ARM Variables
-    # -----------------------
-    - name: Debug ARM Variables
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      run: |
-        if [ -z "$ARM_CLIENT_ID" ]; then
-          echo "ARM_CLIENT_ID missing"
-        else
-          echo "ARM_CLIENT_ID exists"
-        fi
-
-        if [ -z "$ARM_CLIENT_SECRET" ]; then
-          echo "ARM_CLIENT_SECRET missing"
-        else
-          echo "ARM_CLIENT_SECRET exists"
-        fi
-
-        if [ -z "$ARM_SUBSCRIPTION_ID" ]; then
-          echo "ARM_SUBSCRIPTION_ID missing"
-        else
-          echo "ARM_SUBSCRIPTION_ID exists"
-        fi
-
-        if [ -z "$ARM_TENANT_ID" ]; then
-          echo "ARM_TENANT_ID missing"
-        else
-          echo "ARM_TENANT_ID exists"
-        fi
-
-    # -----------------------
     # Build Image
     # -----------------------
     - name: Build Image
       run: |
         packer build \
-         -var "client_id=${{ secrets.ARM_CLIENT_ID }}" \
-         -var "client_secret=${{ secrets.ARM_CLIENT_SECRET }}" \
+          -var "client_id=${{ secrets.ARM_CLIENT_ID }}" \
+          -var "client_secret=${{ secrets.ARM_CLIENT_SECRET }}" \
           -var "subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}" \
-         -var "tenant_id=${{ secrets.ARM_TENANT_ID }}" \
+          -var "tenant_id=${{ secrets.ARM_TENANT_ID }}" \
           ./packer/windows-iis.pkr.hcl
-
-    # -----------------------
-    # Install jq
-    # -----------------------
-    - name: Install jq
-      run: sudo apt-get update && sudo apt-get install -y jq
 
     # -----------------------
     # Extract Image ID
@@ -124,3 +80,52 @@ jobs:
       run: |
         terraform apply -auto-approve \
           -var="image_id=$IMAGE_ID"
+
+    # -----------------------
+    # Get VM Public IP
+    # -----------------------
+    - name: Get VM IP
+      working-directory: ./terraform
+      run: |
+        VM_IP=$(terraform output -raw vm_public_ip)
+        echo "VM_IP=$VM_IP" >> $GITHUB_ENV
+
+    # -----------------------
+    # Setup Python
+    # -----------------------
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    # -----------------------
+    # Install Ansible + WinRM
+    # -----------------------
+    - name: Install Ansible
+      run: |
+        pip install ansible pywinrm
+
+    # -----------------------
+    # Create Dynamic Inventory
+    # -----------------------
+    - name: Create Inventory
+      run: |
+        cat <<EOF > ansible/inventory.ini
+        [windows]
+        vm-devops ansible_host=${VM_IP}
+
+        [windows:vars]
+        ansible_user=azureuser
+        ansible_password=${{ secrets.VM_ADMIN_PASSWORD }}
+        ansible_connection=winrm
+        ansible_winrm_transport=basic
+        ansible_winrm_server_cert_validation=ignore
+        ansible_port=5986
+        EOF
+
+    # -----------------------
+    # Run Ansible
+    # -----------------------
+    - name: Run Ansible
+      run: |
+        ansible-playbook -i ansible/inventory.ini ansible/playbook.yml

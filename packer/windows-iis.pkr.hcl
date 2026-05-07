@@ -73,6 +73,6 @@ build {
   }
 
   post-processor "manifest" {
-    output = "packer-manifest.json"
+    output = "packer/packer-manifest.json"
   }
 }

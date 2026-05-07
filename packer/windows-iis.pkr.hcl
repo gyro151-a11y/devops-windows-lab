@@ -38,9 +38,9 @@ source "azure-arm" "windows" {
   location = "westus2"
   vm_size  = "Standard_D2s_v3"
 
-  virtual_network_name                = "vnet-devops"
-  virtual_network_subnet_name         = "subnet-devops"
-  virtual_network_resource_group_name = "rg-devops-lab"
+  virtual_network_name                = "vnet-platform"
+  virtual_network_subnet_name         = "devops"
+  virtual_network_resource_group_name = "rg-devops-platform"
 
   os_type         = "Windows"
   image_publisher = "MicrosoftWindowsServer"

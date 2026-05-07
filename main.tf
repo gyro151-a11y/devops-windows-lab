@@ -15,24 +15,21 @@ provider "azurerm" {
   }
 }
 
+data "azurerm_virtual_network" "platform" {
+  name                = "vnet-platform"
+  resource_group_name = "rg-devops-platform"
+}
+
+data "azurerm_subnet" "default" {
+  name                 = "default"
+  virtual_network_name = data.azurerm_virtual_network.platform.name
+  resource_group_name  = "rg-devops-platform"
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "rg-devops-lab"
   location = "West US 2"
 } # Creates the resource group
-
-resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-devops"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-} # Creates the virtual network
-
-resource "azurerm_subnet" "subnet" {
-  name                 = "subnet-devops"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
-} # Creates the subnet in the virtual network
 
 resource "azurerm_public_ip" "public_ip" {
   name                = "pip-devops"
@@ -48,7 +45,7 @@ resource "azurerm_network_interface" "nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet.id
+    subnet_id                     = data.azurerm_subnet.default.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.public_ip.id
   }

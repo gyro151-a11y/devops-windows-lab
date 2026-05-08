@@ -36,7 +36,7 @@ source "azure-arm" "windows" {
   managed_image_name = "windows-iis-image-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   location = "westus2"
-  vm_size  = "Standard_D2s_v3"
+  vm_size  = "Standard_B2s"
 
   virtual_network_name                = "vnet-platform"
   virtual_network_subnet_name         = "default"

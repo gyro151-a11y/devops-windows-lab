@@ -69,7 +69,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_id = "/subscriptions/03ffa2fa-c039-4d94-a416-1ae39496cb4e/resourceGroups/rg-devops-images/providers/Microsoft.Compute/images/windows-iis-image"
+  source_image_id = var.image_id
   } # Creates the vm with the proper parameters
 
 

@@ -35,8 +35,8 @@ source "azure-arm" "windows" {
   managed_image_resource_group_name = "rg-devops-images"
   managed_image_name = "windows-iis-image-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
-  location = "westus2"
-  vm_size  = "Standard_B2s"
+  location = "eastus2"
+  vm_size  = "Standard_D2s_v31"
 
   virtual_network_name                = "vnet-platform"
   virtual_network_subnet_name         = "default"

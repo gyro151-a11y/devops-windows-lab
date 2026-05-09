@@ -28,7 +28,7 @@ data "azurerm_subnet" "default" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-devops-lab"
-  location = "West US 2"
+  location = "East US 2"
 } # Creates the resource group
 
 resource "azurerm_public_ip" "public_ip" {
@@ -55,7 +55,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   name                = "vm-devops"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_D2s_v3"
+  size                = "Standard_D2s_v31"
 
   admin_username = "azureuser"
   admin_password = "P@ssword1234!"  # temp only (we’ll fix later)
@@ -69,7 +69,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     storage_account_type = "Standard_LRS"
   }
 
-  source_image_id = var.image_id
+  source_image_id = var.image_id != null ? var.image_id : "/subscriptions/xxx/resourceGroups/rg-devops-images/providers/Microsoft.Compute/images/fallback-image"
   } # Creates the vm with the proper parameters
 
 
